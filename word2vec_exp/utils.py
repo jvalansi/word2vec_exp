@@ -95,3 +95,23 @@ def encode_heb(fpath):
     with open(fpath+'.enc', 'w') as fp:
         fp.write(data.lower())
 
+def main():
+    fpath = os.path.join('res', 'words', 'ambiguous_verbs_heb')
+    encode_heb(fpath)
+    encode_heb(fpath)
+
+    fpath = os.path.join('res', 'hebtb.sd.final.conll')
+    to_text(fpath)
+    to_text(fpath, pos=True)
+    
+#     fname = 'ambiguous_verbs_mixed'
+    fname = 'ambiguous_verbs_heb.enc'
+#     fname = 'ambiguous_verbs'
+    fpath = os.path.join('res', 'words', fname)
+    pos_file(fpath, overwrite=True, pos=['VB'.lower(), 'VB-TOINFINITIVE'.lower()])
+    multiply_file(fpath)
+    multiply_file(fpath+'.pos')
+
+
+if __name__ == '__main__':
+    main()

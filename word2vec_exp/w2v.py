@@ -112,27 +112,13 @@ def compare_section(eval1, eval2, section_name):
 
 
 def main():
-    fpath = os.path.join('res', 'words', 'ambiguous_verbs_heb')
-    encode_heb(fpath)
-    encode_heb(fpath)
-
-    fpath = os.path.join('res', 'hebtb.sd.final.conll')
-    to_text(fpath)
-    to_text(fpath, pos=True)
-    
-#     fname = 'ambiguous_verbs_mixed'
-    fname = 'ambiguous_verbs_heb.enc'
-#     fname = 'ambiguous_verbs'
-    fpath = os.path.join('res', 'words', fname)
-    pos_file(fpath, overwrite=True, pos=['VB'.lower(), 'VB-TOINFINITIVE'.lower()])
-    multiply_file(fpath)
-    multiply_file(fpath+'.pos')
     
 #     name = 'text8'
 #     name = 'brown'
 #     name = 'GoogleNews-vectors-negative300'
 #     name = 'news_pos.bin'
     name = 'hebtb.sd.final.conll.txt.bin'
+    name = 'news.bin'
     pos_name = clean_name(name) +'.pos' + '.bin'
     w2v = W2V(name)
     w2v_pos = W2V(pos_name)
@@ -142,10 +128,10 @@ def main():
 #     print(w2v.model.similarity('add_VB','remove_VB'))
 #     print(len(model.vocab.keys()))    
 
-    questions_fpath = os.path.join('res', 'mult',fname)
-    eval1 = w2v.evaluate_model(questions_fpath)
-    eval2 = w2v_pos.evaluate_model(questions_fpath)
-    compare_section(eval1, eval2, to_section_name(fname))
+#     questions_fpath = os.path.join('res', 'mult',fname)
+#     eval1 = w2v.evaluate_model(questions_fpath)
+#     eval2 = w2v_pos.evaluate_model(questions_fpath)
+#     compare_section(eval1, eval2, to_section_name(fname))
     
 if __name__ == '__main__':
     main()
