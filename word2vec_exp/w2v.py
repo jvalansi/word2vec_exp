@@ -7,9 +7,9 @@ import datetime
 from multiprocessing import Pool
 from six import iteritems, itervalues
 from gensim.utils import smart_open, to_unicode
-from numpy.core.fromnumeric import argsort
 from itertools import product
 import re
+from numpy.core.fromnumeric import argsort
 
 def clean_name(name):
     return '.'.join(os.path.splitext(os.path.basename(name))[:-1])
@@ -105,8 +105,8 @@ class W2V:
     def get_model(self, fpath):
         return word2vec.Word2Vec.load_word2vec_format(fpath, binary=True)
         
-    def create_model(self, name, max_news=99, n_proc=1):
-        model = word2vec.Word2Vec(workers=n_proc)
+    def create_model(self, name, max_news=99, n_proc=1, window=3):
+        model = word2vec.Word2Vec(window=window, workers=n_proc)
         if name == 'text8':
             sentences = word2vec.Text8Corpus(os.path.join('res', 'text8'))
             model.train(sentences)
