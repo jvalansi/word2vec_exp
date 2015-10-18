@@ -7,15 +7,16 @@ from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
 from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
     multiply_file, to_section_name, remove_pos
+import argparse
 
 class W2V:
-    def __init__(self, fname='news.bin'):
+    def __init__(self, fname='news.bin', n_proc=4, window=3):
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
         
         self.fname = fname
-        fpath = os.path.join('res', fname)
+        fpath = os.path.join('res', 'model', fname)
         if not os.path.exists(fpath):
-            self.create_model(clean_name(fname))
+            self.create_model(clean_name(fname), n_proc=n_proc, window=window)
         self.model = self.get_model(fpath)
     
     def get_model(self, fpath):
@@ -24,7 +25,7 @@ class W2V:
     def create_model(self, name, max_news=99, n_proc=1, window=3):
         model = word2vec.Word2Vec(window=window, workers=n_proc)
         if name == 'text8':
-            sentences = word2vec.Text8Corpus(os.path.join('res', 'text8'))
+            sentences = word2vec.Text8Corpus(os.path.join('res', 'model', 'text8'))
             model.train(sentences)
         elif name == 'brown':
         #     sentences = word2vec.BrownCorpus(fpath)
@@ -38,7 +39,7 @@ class W2V:
                 p.map(pos_file, [fpath for fpath in fpaths if not os.path.exists(fpath+'.pos')])
 #                 [pos_file(fpath) for fpath in fpaths if not os.path.exists(fpath+'.pos')]
                 fpaths = [fpath+'.pos' for fpath in fpaths]
-            target_fpath = os.path.join('res', name+'.txt')
+            target_fpath = os.path.join('res', 'model', name+'.txt')
             join_files(fpaths, target_fpath)
             with open(target_fpath) as fp:
                 s = fp.read().lower()
@@ -48,7 +49,7 @@ class W2V:
             model.build_vocab(sentences)
             model.train(sentences)
         else:
-            fpath = os.path.join('res', name)
+            fpath = os.path.join('res', 'model', name)
             with open(fpath) as fp:
                 sentences = fp.readlines()
             sentences = [sentence.lower() for sentence in sentences]
@@ -57,7 +58,7 @@ class W2V:
             model.train(sentences)
          
     #     model.save(os.path.join('res',name+'.model'))
-        model.save_word2vec_format(os.path.join('res',name+'.bin'), binary=True)  
+        model.save_word2vec_format(os.path.join('res', 'model', name+'.bin'), binary=True)  
 
     def get_similarity(self, word1, word2):
         return(self.model.similarity(word1,word2))
@@ -112,15 +113,17 @@ def compare_section(eval1, eval2, section_name):
 
 
 def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-mn", "--model_name", help="model name", default='news.bin')
+    parser.add_argument("-qn", "--questions_name", help="questions name", default='mult_ambiguous_verbs')
+    parser.add_argument("-w", "--window", help="model window size", type=int, default=5)
+    parser.add_argument("-n", "--n_proc", help="number of processes", type=int, default=4)
+    args = parser.parse_args()
+
     
-#     name = 'text8'
-#     name = 'brown'
-#     name = 'GoogleNews-vectors-negative300'
-#     name = 'news_pos.bin'
-    name = 'hebtb.sd.final.conll.txt.bin'
-    name = 'news.bin'
-    pos_name = clean_name(name) +'.pos' + '.bin'
-    w2v = W2V(name)
+    pos_name = clean_name(args.model_name) +'.pos' + '.bin'
+    w2v = W2V(args.model_name)
     w2v_pos = W2V(pos_name)
 
 #     print(len(w2v.model.vocab))
@@ -128,10 +131,10 @@ def main():
 #     print(w2v.model.similarity('add_VB','remove_VB'))
 #     print(len(model.vocab.keys()))    
 
-#     questions_fpath = os.path.join('res', 'mult',fname)
-#     eval1 = w2v.evaluate_model(questions_fpath)
-#     eval2 = w2v_pos.evaluate_model(questions_fpath)
-#     compare_section(eval1, eval2, to_section_name(fname))
+    questions_fpath = os.path.join('res', 'mult', args.questions_name)
+    eval1 = w2v.evaluate_model(questions_fpath)
+    eval2 = w2v_pos.evaluate_model(questions_fpath)
+    compare_section(eval1, eval2, to_section_name(args.questions_name))
     
 if __name__ == '__main__':
     main()

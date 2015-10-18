@@ -592,7 +592,6 @@ class Word2Vec(utils.SaveLoad):
                             break
                         if ch != b'\n':  # ignore newlines in front of words (some binary files have newline, some don't)
                             word.append(ch)
-                    print(word)
                     try:
                         word = utils.to_unicode(b''.join(word))
                     except:
