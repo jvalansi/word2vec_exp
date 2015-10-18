@@ -8,6 +8,7 @@ import re
 from itertools import product
 import nltk
 import datetime
+from multiprocessing import Pool
 
 
 def clean_name(name):
@@ -94,6 +95,21 @@ def encode_heb(fpath):
     data = ''.join([heb_code[c] if c in heb_code else c for c in data])
     with open(fpath+'.enc', 'w') as fp:
         fp.write(data.lower())
+
+def build_corpus(name, max_news, n_proc, target_fpath):
+    fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
+    fpaths = [os.path.join('res', 'training-monolingual.tokenized.shuffled', fname) for fname in fnames]
+    if name.endswith('pos'):
+        p = Pool(n_proc)
+        p.map(pos_file, [fpath for fpath in fpaths if not os.path.exists(fpath+'.pos')])
+#                 [pos_file(fpath) for fpath in fpaths if not os.path.exists(fpath+'.pos')]
+        fpaths = [fpath+'.pos' for fpath in fpaths]
+    join_files(fpaths, target_fpath)
+    with open(target_fpath) as fp:
+        s = fp.read().lower()
+    with open(target_fpath, 'w') as fp:
+        fp.write(s)
+
 
 def main():
     fpath = os.path.join('res', 'words', 'ambiguous_verbs_heb')

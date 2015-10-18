@@ -6,7 +6,7 @@ from multiprocessing import Pool
 from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
 from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
-    multiply_file, to_section_name, remove_pos
+    multiply_file, to_section_name, remove_pos, build_corpus
 import argparse
 
 class W2V:
@@ -32,19 +32,9 @@ class W2V:
             sentences = brown.sents()
             model.train(sentences)
         elif name.startswith('news'):
-            fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
-            fpaths = [os.path.join('res', 'training-monolingual.tokenized.shuffled', fname) for fname in fnames]
-            if name == 'news_pos':
-                p = Pool(n_proc)
-                p.map(pos_file, [fpath for fpath in fpaths if not os.path.exists(fpath+'.pos')])
-#                 [pos_file(fpath) for fpath in fpaths if not os.path.exists(fpath+'.pos')]
-                fpaths = [fpath+'.pos' for fpath in fpaths]
             target_fpath = os.path.join('res', 'model', name+'.txt')
-            join_files(fpaths, target_fpath)
-            with open(target_fpath) as fp:
-                s = fp.read().lower()
-            with open(target_fpath, 'w') as fp:
-                fp.write(s)
+            if not os.path.exists(target_fpath):
+                build_corpus(name, max_news, n_proc, target_fpath)
             sentences = word2vec.LineSentence(target_fpath)
             model.build_vocab(sentences)
             model.train(sentences)
