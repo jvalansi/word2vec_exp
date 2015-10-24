@@ -3,12 +3,15 @@ Created on Oct 17, 2015
 
 @author: jordan
 '''
+from __future__ import division
 import os
 import re
-from itertools import product
+from itertools import product, islice
 import nltk
 import datetime
 from multiprocessing import Pool
+import argparse
+from string import lower
 
 
 def clean_name(name):
@@ -31,7 +34,6 @@ def multiply_file(fname):
         fn.writelines(new_lines)
 
 def pos_file(fname, out_fname=None, overwrite=False, pos=None):
-    print(fname)
     if not out_fname:
         out_fname = fname+'.pos' 
     if os.path.exists(out_fname) and not overwrite:
@@ -69,10 +71,14 @@ def join_files(fnames, target_fname):
 
 def to_text(fpath, pos=False, max_lines=None):
     with open(fpath) as fp:
-        data = fp.readlines()[:max_lines]
+        data = list(islice(fp, max_lines))
     sentences = []
     sentence = []
-    for line in data:
+    percentage = 0
+    for i,line in enumerate(data):
+        if 100*i/len(data) > percentage:
+            print(percentage)
+            percentage += 1
         if len(line.split()) < 2+3*pos:
             sentences.append(sentence)
             sentence = []
@@ -96,7 +102,7 @@ def encode_heb(fpath):
     with open(fpath+'.enc', 'w') as fp:
         fp.write(data.lower())
 
-def build_corpus(name, max_news, n_proc, target_fpath):
+def build_news_corpus(name, max_news, n_proc, target_fpath):
     fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
     fpaths = [os.path.join('res', 'training-monolingual.tokenized.shuffled', fname) for fname in fnames]
     if name.endswith('pos'):
@@ -110,24 +116,40 @@ def build_corpus(name, max_news, n_proc, target_fpath):
     with open(target_fpath, 'w') as fp:
         fp.write(s)
 
-
 def main():
-    fpath = os.path.join('res', 'words', 'ambiguous_verbs_heb')
-    encode_heb(fpath)
-    encode_heb(fpath)
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-eh", "--encode_heb", help="encode hebrew", default=None)
+    parser.add_argument("-mf", "--multiply_file", help="questions name", default=None)
+    parser.add_argument("-pos", "--part_of_speech", help="part of speech list", nargs='+', default=None)
+    parser.add_argument("-tt", "--to_text", help="to text", default=None)
+    args = parser.parse_args()
 
-    fpath = os.path.join('res', 'hebtb.sd.final.conll')
-    to_text(fpath)
-    to_text(fpath, pos=True)
     
 #     fname = 'ambiguous_verbs_mixed'
-    fname = 'ambiguous_verbs_heb.enc'
+#     fname = 'ambiguous_verbs_heb.enc'
 #     fname = 'ambiguous_verbs'
-    fpath = os.path.join('res', 'words', fname)
-    pos_file(fpath, overwrite=True, pos=['VB'.lower(), 'VB-TOINFINITIVE'.lower()])
-    multiply_file(fpath)
-    multiply_file(fpath+'.pos')
+#     fname = 'ambiguous_nouns'
+#     fpath = os.path.join('res', 'words', fname)
 
+    if args.encode_heb:
+        encode_heb(args.encode_heb)
+
+    if args.multiply_file:
+#         pos = ['NN', 'NNS']
+        pos = args.part_of_speech
+        if pos:
+            pos = map(lower, pos)
+        pos_file(args.multiply_file, overwrite=True, pos=pos)
+        multiply_file(args.multiply_file)
+        multiply_file(args.multiply_file+'.pos')
+
+
+    if args.to_text:
+#         fpath = os.path.join('res', 'model', 'wikipedia.deps')
+        fpath = args.to_text
+        to_text(fpath, max_lines=100)
+        to_text(fpath, pos=True, max_lines=100)
 
 if __name__ == '__main__':
     main()

@@ -1,3 +1,4 @@
+from __future__ import division
 from nltk.corpus import brown
 import word2vec
 import logging
@@ -6,12 +7,16 @@ from multiprocessing import Pool
 from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
 from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
-    multiply_file, to_section_name, remove_pos, build_corpus
+    multiply_file, to_section_name, remove_pos, build_corpus, build_news_corpus
 import argparse
+from nltk.stem.lancaster import LancasterStemmer
+from nltk.stem.snowball import SnowballStemmer
+import datetime
 
 class W2V:
     def __init__(self, fname='news.bin', n_proc=4, window=3):
-        logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+        logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', 
+                            level=logging.INFO)
         
         self.fname = fname
         fpath = os.path.join('res', 'model', fname)
@@ -34,10 +39,15 @@ class W2V:
         elif name.startswith('news'):
             target_fpath = os.path.join('res', 'model', name+'.txt')
             if not os.path.exists(target_fpath):
-                build_corpus(name, max_news, n_proc, target_fpath)
+                build_news_corpus(name, max_news, n_proc, target_fpath)
             sentences = word2vec.LineSentence(target_fpath)
             model.build_vocab(sentences)
             model.train(sentences)
+        elif name.startswith('wikipedia.deps'):
+            target_fpath = os.path.join('res', 'model', name+'.txt')
+            if not os.path.exists(target_fpath):
+                build_wikipedia_corpus(name, max_news, n_proc, target_fpath)
+            
         else:
             fpath = os.path.join('res', 'model', name)
             with open(fpath) as fp:
@@ -55,19 +65,25 @@ class W2V:
 
     def get_prediction(self, a,b,c, ok_index, restrict_vocab=30000):
         ok_vocab = dict(sorted(iteritems(self.model.vocab), 
-                               key=lambda item: -item[1].count)[:restrict_vocab])
+                               key=lambda item: -item[1].count)
+                        [:restrict_vocab])
         ok_index = set(v.index for v in itervalues(ok_vocab))
 
         ignore = set(self.model.vocab[v].index for v in [a, b, c])  # indexes of words to ignore
         positive = [b, c]
         negative = [a]
-        for index in argsort(self.model.most_similar(self.model, positive, negative, False))[::-1]:
+        for index in argsort(self.model.most_similar(self.model, 
+                                                     positive, 
+                                                     negative, 
+                                                     False))[::-1]:
             if index in ok_index and index not in ignore:
                 predicted = self.model.index2word[index]
                 break
         return predicted
 
-    def evaluate_model(self, questions_fpath = os.path.join('res', 'questions-words.txt')):
+    def evaluate_model(self, 
+                       questions_fpath=os.path.join('res', 
+                                                    'questions-words.txt')):
         if clean_name(self.fname).endswith('pos'):
             pos_file(questions_fpath)
             questions_fpath = questions_fpath+'.pos' 
@@ -80,6 +96,18 @@ def get_section(model_eval, name):
     print('not found')
     return None
 
+def process_missing(missing, sec):
+    st = SnowballStemmer('english')
+    morphological_errors = 0
+    for m in missing:
+        ind = sec['incorrect'].index(m)
+        prediction = sec['predicted'][ind]
+        if(st.stem(m[3]) == st.stem(prediction[0])):
+            morphological_errors += 1        
+        print('the correct sequence is: '+str(m)+' but predicted: '+str(prediction))
+    print('morphological errors:' + str(morphological_errors))
+    print('percentage:' + str(morphological_errors/len(missing)))
+
 def compare_section(eval1, eval2, section_name):
     sec1 = get_section(eval1, section_name)
     sec2 = get_section(eval2, section_name)
@@ -87,18 +115,14 @@ def compare_section(eval1, eval2, section_name):
     sec2 =  {k: [tuple(remove_pos(w) for w in c) for c in v] for k,v in sec2.items()} 
     correct1 = [c for c in sec1['correct'] if c not in sec2['OOV']]
     correct2 = [c for c in sec2['correct'] if c not in sec1['OOV']]
-    print(len(correct1))
-    print(len(correct2))
     missing1 = [c for c in correct2 if c not in correct1]
     missing2 = [c for c in correct1 if c not in correct2]
+
     print('missing1')
-    for m in missing1:
-        ind = sec1['incorrect'].index(m)
-        print('the correct sequence is: '+str(m)+' but predicted: '+str(sec1['predicted'][ind]))
+    process_missing(missing1, sec1)
     print('missing2')
-    for m in missing2:
-        ind = sec2['incorrect'].index(m)
-        print('the correct sequence is: '+str(m)+' but predicted: '+str(sec2['predicted'][ind]))
+    process_missing(missing2, sec2)
+        
     return(missing1, missing2)
 
 
@@ -106,7 +130,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-mn", "--model_name", help="model name", default='news.bin')
-    parser.add_argument("-qn", "--questions_name", help="questions name", default='mult_ambiguous_verbs')
+    parser.add_argument("-qn", "--questions_name", help="questions name", default='ambiguous_verbs')
     parser.add_argument("-w", "--window", help="model window size", type=int, default=5)
     parser.add_argument("-n", "--n_proc", help="number of processes", type=int, default=4)
     args = parser.parse_args()
@@ -122,9 +146,16 @@ def main():
 #     print(len(model.vocab.keys()))    
 
     questions_fpath = os.path.join('res', 'mult', args.questions_name)
+    print(datetime.datetime.now())
     eval1 = w2v.evaluate_model(questions_fpath)
+    print(datetime.datetime.now())
     eval2 = w2v_pos.evaluate_model(questions_fpath)
-    compare_section(eval1, eval2, to_section_name(args.questions_name))
+    print(datetime.datetime.now())
+    missing1, missing2 = compare_section(eval1, eval2, to_section_name(args.questions_name))
+    
+
+#TODO: noun- nouns
+#TODO: morphological - syntactic errors
     
 if __name__ == '__main__':
     main()

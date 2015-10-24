@@ -84,7 +84,7 @@ from numpy import exp, dot, zeros, outer, random, dtype, float32 as REAL,\
     ndarray, empty, sum as np_sum, prod
 
 logger = logging.getLogger("gensim.models.word2vec")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 from gensim import utils, matutils  # utility fnc for pickling, common scipy operations etc
