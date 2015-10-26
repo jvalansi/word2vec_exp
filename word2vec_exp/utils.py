@@ -123,6 +123,7 @@ def main():
     parser.add_argument("-mf", "--multiply_file", help="questions name", default=None)
     parser.add_argument("-pos", "--part_of_speech", help="part of speech list", nargs='+', default=None)
     parser.add_argument("-tt", "--to_text", help="to text", default=None)
+    parser.add_argument("-ml", "--max_lines", help="maximal number of lines", type=int, default=None)
     args = parser.parse_args()
 
     
@@ -148,8 +149,8 @@ def main():
     if args.to_text:
 #         fpath = os.path.join('res', 'model', 'wikipedia.deps')
         fpath = args.to_text
-        to_text(fpath, max_lines=100)
-        to_text(fpath, pos=True, max_lines=100)
+        to_text(fpath, max_lines=args.max_lines)
+        to_text(fpath, pos=True, max_lines=args.max_lines)
 
 if __name__ == '__main__':
     main()
