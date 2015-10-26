@@ -87,7 +87,7 @@ def to_text(fpath, pos=False, max_lines=None):
             if pos:
                 word += '_'+line.split()[4] 
             sentence.append(word)
-    with open(fpath + '.txt' +'.pos'*pos, 'w') as fp:
+    with open(fpath +'.pos'*pos + '.txt', 'w') as fp:
         fp.writelines([' '.join(sentence).lower()+'\n' for sentence in sentences])
 
 def encode_heb(fpath):
