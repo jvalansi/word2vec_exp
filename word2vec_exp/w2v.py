@@ -7,14 +7,14 @@ from multiprocessing import Pool
 from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
 from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
-    multiply_file, to_section_name, remove_pos, build_corpus, build_news_corpus
+    multiply_file, to_section_name, remove_pos, build_news_corpus
 import argparse
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem.snowball import SnowballStemmer
 import datetime
 
 class W2V:
-    def __init__(self, fname='news.bin', n_proc=4, window=3):
+    def __init__(self, fname='news.bin', n_proc=4, window=5):
         logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', 
                             level=logging.INFO)
         
@@ -43,11 +43,10 @@ class W2V:
             sentences = word2vec.LineSentence(target_fpath)
             model.build_vocab(sentences)
             model.train(sentences)
-        elif name.startswith('wikipedia.deps'):
-            target_fpath = os.path.join('res', 'model', name+'.txt')
-            if not os.path.exists(target_fpath):
-                build_wikipedia_corpus(name, max_news, n_proc, target_fpath)
-            
+#         elif name.startswith('wikipedia.deps'):
+#             target_fpath = os.path.join('res', 'model', name+'.txt')
+#             if not os.path.exists(target_fpath):
+#                 build_wikipedia_corpus(name, max_news, n_proc, target_fpath)            
         else:
             fpath = os.path.join('res', 'model', name)
             with open(fpath) as fp:
@@ -153,9 +152,6 @@ def main():
     print(datetime.datetime.now())
     missing1, missing2 = compare_section(eval1, eval2, to_section_name(args.questions_name))
     
-
-#TODO: noun- nouns
-#TODO: morphological - syntactic errors
     
 if __name__ == '__main__':
     main()
