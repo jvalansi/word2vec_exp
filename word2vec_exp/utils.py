@@ -86,7 +86,7 @@ def to_text(fpath, pos=False, max_lines=None):
             word = line.split()[1]
             if pos:
                 word += '_'+line.split()[4] 
-            sentence.append(unicode(word))
+            sentence.append(word)
     with open(fpath + '.txt' +'.pos'*pos, 'w') as fp:
         fp.writelines([' '.join(sentence).lower()+'\n' for sentence in sentences])
 
