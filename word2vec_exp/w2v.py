@@ -48,7 +48,7 @@ class W2V:
 #             if not os.path.exists(target_fpath):
 #                 build_wikipedia_corpus(name, max_news, n_proc, target_fpath)            
         else:
-            fpath = os.path.join('res', 'model', name)
+            fpath = os.path.join('res', 'model', name+'.txt')
             with open(fpath) as fp:
                 sentences = fp.readlines()
             sentences = [sentence.lower() for sentence in sentences]
