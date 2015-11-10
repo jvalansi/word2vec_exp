@@ -94,21 +94,14 @@ def to_text(fpath, pos=False, max_lines=None):
 
 def encode_heb(fpath):
     with open(fpath) as fp1:
-        data = fp1.readlines()
-    new_data = ""
-    for line in data:
-        try:
-            new_data += unicode(line, 'utf-8')
-        except Exception:
-            pass
-    data = new_data
+        data = fp1.read()
     with open(os.path.join('res', 'heb_code')) as fp2:
         heb_code = fp2.readlines()
 #     heb_code = [unicode(line, 'utf-8', 'replace') for line in heb_code]
     heb_code = {line.split()[0]: line.split()[1] for line in heb_code}
     data = ''.join([heb_code[c] if c in heb_code else c for c in data])
     with open(fpath+'.enc', 'w') as fp:
-        fp.write(data.lower().encode('utf8'))
+        fp.write(unicode(data, 'utf8', errors='replace').encode('utf8').lower())
 
 def build_news_corpus(name, max_news, n_proc, target_fpath):
     fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
