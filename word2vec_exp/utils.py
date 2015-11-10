@@ -101,7 +101,7 @@ def encode_heb(fpath):
     heb_code = {line.split()[0]: line.split()[1] for line in heb_code}
     data = ''.join([heb_code[c] if c in heb_code else c for c in data])
     with open(fpath+'.enc', 'w') as fp:
-        fp.write(unicode(data, 'utf8', errors='replace').lower())
+        fp.write(unicode(data, 'utf8', errors='replace').encode('utf-8').lower())
 
 def build_news_corpus(name, max_news, n_proc, target_fpath):
     fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
