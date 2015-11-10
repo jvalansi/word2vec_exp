@@ -101,9 +101,9 @@ def encode_heb(fpath):
 #     heb_code = [unicode(line, 'utf-8', 'replace') for line in heb_code]
     heb_code = {line.split()[0]: line.split()[1] for line in heb_code}
     data = ''.join([heb_code[c] if c in heb_code else c for c in data])
-    with codecs(fpath+'.enc', encoding='utf-8',mode='w') as fp:
-        fp.write(data.lower())
-
+    fp = codecs(fpath+'.enc', encoding='utf-8',mode='w')
+    fp.write(data.lower())
+    fp.close()
 
 
 def build_news_corpus(name, max_news, n_proc, target_fpath):
