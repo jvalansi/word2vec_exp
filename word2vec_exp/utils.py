@@ -15,6 +15,7 @@ from string import lower
 import sys
 from symbol import try_stmt
 import codecs
+import json
 
 
 def clean_name(name):
@@ -93,18 +94,19 @@ def to_text(fpath, pos=False, max_lines=None):
     with open(fpath +'.pos'*pos + '.txt', 'w') as fp:
         fp.writelines([' '.join(sentence).lower()+'\n' for sentence in sentences])
 
-def encode_heb(fpath):
+def encode_heb(fpath, max_lines=None):
     with open(fpath) as fp1:
-        data = fp1.read()
+        data = fp1.readlines(max_lines)
+    data = ''.join(data)
+    data = unicode(data, 'utf-8', 'ignore')
     with open(os.path.join('res', 'heb_code')) as fp2:
-        heb_code = fp2.readlines()
-#     heb_code = [unicode(line, 'utf-8', 'replace') for line in heb_code]
-    heb_code = {line.split()[0]: line.split()[1] for line in heb_code}
-    data = ''.join([heb_code[c] if c in heb_code else c for c in data])
-    fp = codecs.open(fpath+'.enc', encoding='utf-8',mode='w', errors='replace')
-    fp.write(data.lower())
-    fp.close()
-
+        heb_code = json.load(fp2)
+    data = ''.join([heb_code[c] if c in heb_code else c for line in data for c in line])
+#     fp = codecs.open(fpath+'.enc', encoding='utf-8',mode='w', errors='replace')
+#     fp.write(data.lower())
+#     fp.close()
+    with open(fpath+'.enc', 'w') as fp3:
+        fp3.write(data.encode('ascii', 'ignore'))
 
 def build_news_corpus(name, max_news, n_proc, target_fpath):
     fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
@@ -138,7 +140,7 @@ def main():
 #     fpath = os.path.join('res', 'words', fname)
 
     if args.encode_heb:
-        encode_heb(args.encode_heb)
+        encode_heb(args.encode_heb, max_lines=args.max_lines)
 
     if args.multiply_file:
 #         pos = ['NN', 'NNS']
