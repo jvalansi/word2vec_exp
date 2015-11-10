@@ -75,7 +75,7 @@ def join_files(fnames, target_fname):
 
 def to_text(fpath, pos=False, max_lines=None):
     with open(fpath) as fp:
-        data = list(islice(fp, max_lines))
+        data = fp.readlines(max_lines) if max_lines else fp.readlines() 
     sentences = []
     sentence = []
     percentage = 0
@@ -96,15 +96,12 @@ def to_text(fpath, pos=False, max_lines=None):
 
 def encode_heb(fpath, max_lines=None):
     with open(fpath) as fp1:
-        data = fp1.readlines(max_lines)
+        data = fp1.readlines(max_lines) if max_lines else fp1.readlines()
     data = ''.join(data)
     data = unicode(data, 'utf-8', 'ignore')
     with open(os.path.join('res', 'heb_code')) as fp2:
         heb_code = json.load(fp2)
     data = ''.join([heb_code[c] if c in heb_code else c for line in data for c in line])
-#     fp = codecs.open(fpath+'.enc', encoding='utf-8',mode='w', errors='replace')
-#     fp.write(data.lower())
-#     fp.close()
     with open(fpath+'.enc', 'w') as fp3:
         fp3.write(data.encode('ascii', 'ignore'))
 
