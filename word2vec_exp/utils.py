@@ -14,6 +14,7 @@ import argparse
 from string import lower
 import sys
 from symbol import try_stmt
+import codecs
 
 
 def clean_name(name):
@@ -100,8 +101,10 @@ def encode_heb(fpath):
 #     heb_code = [unicode(line, 'utf-8', 'replace') for line in heb_code]
     heb_code = {line.split()[0]: line.split()[1] for line in heb_code}
     data = ''.join([heb_code[c] if c in heb_code else c for c in data])
-    with open(fpath+'.enc', 'w') as fp:
-        fp.write(unicode(data, 'utf8', errors='replace').encode('utf-8', errors='replace').lower())
+    with codecs(fpath+'.enc', encoding='utf-8',mode='w') as fp:
+        fp.write(data.lower())
+
+
 
 def build_news_corpus(name, max_news, n_proc, target_fpath):
     fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
