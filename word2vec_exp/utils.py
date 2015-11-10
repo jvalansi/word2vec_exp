@@ -12,6 +12,8 @@ import datetime
 from multiprocessing import Pool
 import argparse
 from string import lower
+import sys
+from symbol import try_stmt
 
 
 def clean_name(name):
@@ -92,11 +94,17 @@ def to_text(fpath, pos=False, max_lines=None):
 
 def encode_heb(fpath):
     with open(fpath) as fp1:
-        data = fp1.read()
-    data = unicode(data, 'utf-8', 'replace')
+        data = fp1.readlines()
+    new_data = ""
+    for line in data:
+        try:
+            new_data += unicode(line, 'utf-8')
+        except Exception:
+            pass
+    data = new_data
     with open(os.path.join('res', 'heb_code')) as fp2:
         heb_code = fp2.readlines()
-    heb_code = [unicode(line, 'utf-8', 'replace') for line in heb_code]
+#     heb_code = [unicode(line, 'utf-8', 'replace') for line in heb_code]
     heb_code = {line.split()[0]: line.split()[1] for line in heb_code}
     data = ''.join([heb_code[c] if c in heb_code else c for c in data])
     with open(fpath+'.enc', 'w') as fp:

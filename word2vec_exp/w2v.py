@@ -1,6 +1,6 @@
 from __future__ import division
 from nltk.corpus import brown
-import word2vec
+# import word2vec
 import logging
 import os
 from multiprocessing import Pool
@@ -12,6 +12,7 @@ import argparse
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem.snowball import SnowballStemmer
 import datetime
+from gensim.models import word2vec
 
 class W2V:
     def __init__(self, fname='news.bin', n_proc=4, window=5):
@@ -128,15 +129,15 @@ def compare_section(eval1, eval2, section_name):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-mn", "--model_name", help="model name", default='news.bin')
+    parser.add_argument("-mn", "--model_name", help="model name", default='news7.bin')
     parser.add_argument("-qn", "--questions_name", help="questions name", default='ambiguous_verbs')
     parser.add_argument("-w", "--window", help="model window size", type=int, default=5)
     parser.add_argument("-n", "--n_proc", help="number of processes", type=int, default=4)
     args = parser.parse_args()
 
     
-    pos_name = clean_name(args.model_name) +'.pos' + '.bin'
     w2v = W2V(args.model_name)
+    pos_name = clean_name(args.model_name) +'.pos' + '.bin'
     w2v_pos = W2V(pos_name)
 
 #     print(len(w2v.model.vocab))
