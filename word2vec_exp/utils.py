@@ -102,11 +102,11 @@ def encode_heb(fpath, max_lines=None):
     with open(os.path.join('res', 'heb_code')) as fp2:
         heb_code = json.load(fp2)
     data = ''.join([heb_code[c] if c in heb_code else c for line in data for c in line])
-    if isinstance(data, unicode):
-        data = data.encode('ascii', 'ignore')
-    data = unicode(data, 'utf-8', errors='ignore')
+#     if isinstance(data, unicode):
+#         data = 
+#     data = unicode(data, 'utf-8', errors='ignore')
     with open(fpath+'.enc', 'w') as fp3:
-        fp3.write(data)
+        fp3.write(data.encode('ascii', 'ignore'))
 
 def build_news_corpus(name, max_news, n_proc, target_fpath):
     fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
