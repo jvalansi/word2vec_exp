@@ -106,7 +106,8 @@ def process_missing(missing, sec):
             morphological_errors += 1        
         print('the correct sequence is: '+str(m)+' but predicted: '+str(prediction))
     print('morphological errors:' + str(morphological_errors))
-    print('percentage:' + str(morphological_errors/len(missing)))
+    if len(missing):
+        print('percentage:' + str(morphological_errors/len(missing)))
 
 def compare_section(eval1, eval2, section_name):
     sec1 = get_section(eval1, section_name)
