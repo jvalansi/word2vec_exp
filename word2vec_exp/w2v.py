@@ -59,7 +59,7 @@ class W2V:
             if splits == 0:
                 splits = 1
             split_size = int(n_sents/splits)
-            for i in splits:
+            for i in range(splits):
                 print(i + '\r')
                 split_sentences = sentences[i*split_size:(i+1)*split_size-1]
                 model.train(split_sentences)
