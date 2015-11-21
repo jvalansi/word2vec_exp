@@ -3,7 +3,7 @@ Created on Oct 17, 2015
 
 @author: jordan
 '''
-from __future__ import division
+from __future__ import division, print_function
 import os
 import re
 from itertools import product, islice
@@ -81,7 +81,7 @@ def to_text(fpath, pos=False, max_lines=None):
     percentage = 0
     for i,line in enumerate(data):
         if 100*i/len(data) > percentage:
-            print(percentage)
+            print(percentage + '\r')
             percentage += 1
         if len(line.split()) < 2+3*pos:
             sentences.append(sentence)
@@ -102,12 +102,19 @@ def encode_heb(fpath, max_lines=None):
     with open(os.path.join('res', 'heb_code')) as fp2:
         heb_code = json.load(fp2)
     data = ''.join([heb_code[c] if c in heb_code else c for line in data for c in line])
-#     if isinstance(data, unicode):
-#         data = 
-#     data = unicode(data, 'utf-8', errors='ignore')
     with open(fpath+'.enc', 'w') as fp3:
         fp3.write(data.encode('ascii', 'ignore'))
 
+def split_file(fpath, n):
+    num_lines = sum(1 for line in open(fpath))
+    print(num_lines)
+    with open(fpath) as fp1:
+        for i in range(n):
+            print(i + '\r')
+            split_data = fp1.readlines(int(num_lines/n))
+            with open(fpath+str(i), 'w') as fp2:
+                fp2.writelines(split_data)
+    
 def build_news_corpus(name, max_news, n_proc, target_fpath):
     fnames = ['news.en-{:05}-of-00100'.format(i+1) for i in range(max_news)]
     fpaths = [os.path.join('res', 'training-monolingual.tokenized.shuffled', fname) for fname in fnames]
@@ -125,6 +132,8 @@ def build_news_corpus(name, max_news, n_proc, target_fpath):
 def main():
     
     parser = argparse.ArgumentParser()
+    parser.add_argument("-sf", "--split_file", help="split file", default=None)
+    parser.add_argument("-n", "--num_of_splits", help="number of splits", default=10)
     parser.add_argument("-eh", "--encode_heb", help="encode hebrew", default=None)
     parser.add_argument("-mf", "--multiply_file", help="questions name", default=None)
     parser.add_argument("-pos", "--part_of_speech", help="part of speech list", nargs='+', default=None)
@@ -132,12 +141,14 @@ def main():
     parser.add_argument("-ml", "--max_lines", help="maximal number of lines", type=int, default=None)
     args = parser.parse_args()
 
-    
 #     fname = 'ambiguous_verbs_mixed'
 #     fname = 'ambiguous_verbs_heb.enc'
 #     fname = 'ambiguous_verbs'
 #     fname = 'ambiguous_nouns'
 #     fpath = os.path.join('res', 'words', fname)
+    
+    if args.split_file:
+        split_file(args.split_file, args.num_of_splits)
 
     if args.encode_heb:
         encode_heb(args.encode_heb, max_lines=args.max_lines)

@@ -28,7 +28,7 @@ class W2V:
     def get_model(self, fpath):
         return word2vec.Word2Vec.load_word2vec_format(fpath, binary=True)
         
-    def create_model(self, name, max_news=99, n_proc=1, window=3):
+    def create_model(self, name, max_news=99, n_proc=1, window=5, splits=100):
         model = word2vec.Word2Vec(window=window, workers=n_proc)
         if name == 'text8':
             sentences = word2vec.Text8Corpus(os.path.join('res', 'model', 'text8'))
@@ -53,9 +53,17 @@ class W2V:
             with open(fpath) as fp:
                 sentences = fp.readlines()
             sentences = [sentence.lower() for sentence in sentences]
-            print(len(sentences))
             model.build_vocab(sentences)
-            model.train(sentences)
+            n_sents = len(sentences)  
+            print(n_sents)
+            if splits == 0:
+                splits = 1
+            split_size = int(n_sents/splits)
+            for i in splits:
+                print(i + '\r')
+                split_sentences = sentences[i*split_size:(i+1)*split_size-1]
+                model.train(split_sentences)
+                model.save_word2vec_format(os.path.join('res', 'model', name+'.bin'), binary=True)  
          
     #     model.save(os.path.join('res',name+'.model'))
         model.save_word2vec_format(os.path.join('res', 'model', name+'.bin'), binary=True)  
@@ -130,16 +138,16 @@ def compare_section(eval1, eval2, section_name):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-mn", "--model_name", help="model name", default='news7.bin')
+    parser.add_argument("-mn", "--model_name", help="model name", default='news5.bin')
     parser.add_argument("-qn", "--questions_name", help="questions name", default='ambiguous_verbs')
     parser.add_argument("-w", "--window", help="model window size", type=int, default=5)
     parser.add_argument("-n", "--n_proc", help="number of processes", type=int, default=4)
     args = parser.parse_args()
 
     
-    w2v = W2V(args.model_name)
+    w2v = W2V(args.model_name,n_proc=args.n_proc, window=args.window)
     pos_name = clean_name(args.model_name) +'.pos' + '.bin'
-    w2v_pos = W2V(pos_name)
+    w2v_pos = W2V(pos_name,n_proc=args.n_proc, window=args.window)
 
 #     print(len(w2v.model.vocab))
 #     print(w2v.model.vocab.items()[:10])
