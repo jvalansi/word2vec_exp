@@ -60,7 +60,7 @@ class W2V:
                 splits = 1
             split_size = int(n_sents/splits)
             for i in range(splits):
-                print(i + '\r')
+                print(str(i) + '\r')
                 split_sentences = sentences[i*split_size:(i+1)*split_size-1]
                 model.train(split_sentences)
                 model.save_word2vec_format(os.path.join('res', 'model', name+'.bin'), binary=True)  
