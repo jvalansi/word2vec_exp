@@ -7,12 +7,13 @@ from multiprocessing import Pool
 from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
 from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
-    multiply_file, to_section_name, remove_pos, build_news_corpus
+    multiply_file, to_section_name, remove_pos, build_news_corpus, build_corpus
 import argparse
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem.snowball import SnowballStemmer
 import datetime
 from gensim.models import word2vec
+import re
 
 class W2V:
     def __init__(self, fname='news.bin', n_proc=4, window=5):
@@ -47,7 +48,16 @@ class W2V:
 #         elif name.startswith('wikipedia.deps'):
 #             target_fpath = os.path.join('res', 'model', name+'.txt')
 #             if not os.path.exists(target_fpath):
-#                 build_wikipedia_corpus(name, max_news, n_proc, target_fpath)            
+#                 build_wikipedia_corpus(name, max_news, n_proc, target_fpath)
+        elif name.startswith('spanishEtiquetado'):
+            target_fpath = os.path.join('res', 'model', name+'.txt')
+            if not os.path.exists(target_fpath):
+                path = os.path.join('res', 'model', name)
+                build_corpus(path, target_fpath)
+            with open(target_fpath) as fp:
+                sentences = fp.readlines()
+            model.build_vocab(sentences)
+            model.train(sentences)        
         else:
             fpath = os.path.join('res', 'model', name+'.txt')
             with open(fpath) as fp:

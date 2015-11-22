@@ -91,8 +91,10 @@ def to_text(fpath, pos=False, max_lines=None):
             if pos:
                 word += '_'+line.split()[4] 
             sentence.append(word)
-    with open(fpath +'.pos'*pos + '.txt', 'w') as fp:
+    fpath_text = fpath +'.pos'*pos + '.txt' 
+    with open(fpath_text, 'w') as fp:
         fp.writelines([' '.join(sentence).lower()+'\n' for sentence in sentences])
+    return fpath_text
 
 def encode_heb(fpath, max_lines=None):
     with open(fpath) as fp1:
@@ -124,10 +126,24 @@ def build_news_corpus(name, max_news, n_proc, target_fpath):
 #                 [pos_file(fpath) for fpath in fpaths if not os.path.exists(fpath+'.pos')]
         fpaths = [fpath+'.pos' for fpath in fpaths]
     join_files(fpaths, target_fpath)
-    with open(target_fpath) as fp:
+    file_to_lower(target_fpath)
+
+def file_to_lower(fpath):
+    with open(fpath) as fp:
         s = fp.read().lower()
-    with open(target_fpath, 'w') as fp:
+    with open(fpath, 'w') as fp:
         fp.write(s)
+
+def build_corpus(path, target_fpath):
+#     all files to text
+    fpaths = []
+    for fname in os.listdir(path):
+        fpath = os.path.join(path, fname)
+        fpaths.append(to_text(fpath, fname.endswith('pos'), None))
+#     join files
+    join_files(fpaths, target_fpath)
+    file_to_lower(target_fpath)
+    
 
 def main():
     
