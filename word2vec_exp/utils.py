@@ -139,7 +139,7 @@ def build_corpus(path, target_fpath):
     fpaths = []
     for fname in os.listdir(path):
         fpath = os.path.join(path, fname)
-        fpaths.append(to_text(fpath, fname.endswith('pos'), None))
+        fpaths.append(to_text(fpath, fpath.endswith('pos'), None))
 #     join files
     join_files(fpaths, target_fpath)
     file_to_lower(target_fpath)
