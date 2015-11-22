@@ -23,13 +23,14 @@ class W2V:
         self.fname = fname
         fpath = os.path.join('res', 'model', fname)
         if not os.path.exists(fpath):
-            self.create_model(clean_name(fname), n_proc=n_proc, window=window)
+            self.create_model(fname, n_proc=n_proc, window=window)
         self.model = self.get_model(fpath)
     
     def get_model(self, fpath):
-        return word2vec.Word2Vec.load_word2vec_format(fpath, binary=True)
+        return word2vec.Word2Vec.load_word2vec_format(fpath, binary=fpath.endswith('.bin'))
         
-    def create_model(self, name, max_news=99, n_proc=1, window=5, splits=100):
+    def create_model(self, fname, max_news=99, n_proc=1, window=5, splits=100):
+        name = clean_name(fname)
         model = word2vec.Word2Vec(window=window, workers=n_proc)
         if name == 'text8':
             sentences = word2vec.Text8Corpus(os.path.join('res', 'model', 'text8'))
@@ -73,10 +74,11 @@ class W2V:
                 print(str(i) + '\r')
                 split_sentences = sentences[i*split_size:(i+1)*split_size-1]
                 model.train(split_sentences)
-                model.save_word2vec_format(os.path.join('res', 'model', name+'.bin'), binary=True)  
-         
+                model.save_word2vec_format(os.path.join('res', 'model', fname), binary=fname.endswith('.bin'))
+                model.save()  
+                         
     #     model.save(os.path.join('res',name+'.model'))
-        model.save_word2vec_format(os.path.join('res', 'model', name+'.bin'), binary=True)  
+        model.save_word2vec_format(os.path.join('res', 'model', fname), binary=fname.endswith('.bin'))
 
     def get_similarity(self, word1, word2):
         return(self.model.similarity(word1,word2))
@@ -148,8 +150,8 @@ def compare_section(eval1, eval2, section_name):
 def main():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-mn", "--model_name", help="model name", default='news5.bin')
-    parser.add_argument("-qn", "--questions_name", help="questions name", default='ambiguous_verbs')
+    parser.add_argument("-mn", "--model_name", help="model name", default='spanishEtiquetado.bin')
+    parser.add_argument("-qn", "--questions_name", help="questions name", default='ambiguous_verbs.es')
     parser.add_argument("-w", "--window", help="model window size", type=int, default=5)
     parser.add_argument("-n", "--n_proc", help="number of processes", type=int, default=4)
     args = parser.parse_args()
