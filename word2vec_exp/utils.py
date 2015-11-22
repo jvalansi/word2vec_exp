@@ -145,7 +145,7 @@ def build_corpus(path, pos, target_fpath):
         fpath = os.path.join(path, fname)
         if fname.endswith('.txt') or not os.path.isfile(fpath):
             continue
-        fpaths.append(to_text(fpath, pos, 2, None))
+        fpaths.append(to_text(fpath, pos, pos_position=2))
 #     join files
     join_files(fpaths, target_fpath)
     file_to_lower(target_fpath)
