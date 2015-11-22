@@ -134,12 +134,12 @@ def file_to_lower(fpath):
     with open(fpath, 'w') as fp:
         fp.write(s)
 
-def build_corpus(path, target_fpath):
+def build_corpus(path, pos, target_fpath):
 #     all files to text
     fpaths = []
     for fname in os.listdir(path):
         fpath = os.path.join(path, fname)
-        fpaths.append(to_text(fpath, fpath.endswith('pos'), None))
+        fpaths.append(to_text(fpath, pos, None))
 #     join files
     join_files(fpaths, target_fpath)
     file_to_lower(target_fpath)

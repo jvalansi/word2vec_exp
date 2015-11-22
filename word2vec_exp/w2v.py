@@ -52,8 +52,8 @@ class W2V:
         elif name.startswith('spanishEtiquetado'):
             target_fpath = os.path.join('res', 'model', name+'.txt')
             if not os.path.exists(target_fpath):
-                path = os.path.join('res', 'model', name)
-                build_corpus(path, target_fpath)
+                path = os.path.join('res', 'model', 'spanishEtiquetado')
+                build_corpus(path, name.endswith('pos'), target_fpath)
             with open(target_fpath) as fp:
                 sentences = fp.readlines()
             model.build_vocab(sentences)
