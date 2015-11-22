@@ -73,7 +73,7 @@ def join_files(fnames, target_fname):
             with open(fname) as f_:
                 f.write(f_.read()) 
 
-def to_text(fpath, pos=False, max_lines=None):
+def to_text(fpath, pos=False, max_lines=None, target_fpath=None):
     with open(fpath) as fp:
         data = fp.readlines(max_lines) if max_lines else fp.readlines() 
     sentences = []
@@ -91,7 +91,10 @@ def to_text(fpath, pos=False, max_lines=None):
             if pos:
                 word += '_'+line.split()[4] 
             sentence.append(word)
-    fpath_text = fpath +'.pos'*pos + '.txt' 
+    if target_fpath:
+        fpath_text = target_fpath +'.pos'*pos + '.txt' 
+    else:
+        fpath_text = fpath +'.pos'*pos + '.txt' 
     with open(fpath_text, 'w') as fp:
         fp.writelines([' '.join(sentence).lower()+'\n' for sentence in sentences])
     return fpath_text
@@ -139,6 +142,8 @@ def build_corpus(path, pos, target_fpath):
     fpaths = []
     for fname in os.listdir(path):
         fpath = os.path.join(path, fname)
+        if fname.endswith('.txt') or not os.path.isfile(fpath):
+            continue
         fpaths.append(to_text(fpath, pos, None))
 #     join files
     join_files(fpaths, target_fpath)
