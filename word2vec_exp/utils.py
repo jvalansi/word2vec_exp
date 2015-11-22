@@ -73,7 +73,7 @@ def join_files(fnames, target_fname):
             with open(fname) as f_:
                 f.write(f_.read()) 
 
-def to_text(fpath, pos=False, max_lines=None, target_fpath=None):
+def to_text(fpath, pos=False, max_lines=None, pos_position=5, target_fpath=None):
     with open(fpath) as fp:
         data = fp.readlines(max_lines) if max_lines else fp.readlines() 
     sentences = []
@@ -81,15 +81,16 @@ def to_text(fpath, pos=False, max_lines=None, target_fpath=None):
     percentage = 0
     for i,line in enumerate(data):
         if 100*i/len(data) > percentage:
-            print(str(percentage) + '\r')
+            print(str(percentage) + '\r'),
             percentage += 1
-        if len(line.split()) < 2+3*pos:
+        line_split = line.split() 
+        if (pos and len(line_split) < pos_position) or (not pos and len(line_split) < 2):
             sentences.append(sentence)
             sentence = []
         else:
-            word = line.split()[1]
+            word = line_split[1]
             if pos:
-                word += '_'+line.split()[4] 
+                word += '_'+line_split[4] 
             sentence.append(word)
     if target_fpath:
         fpath_text = target_fpath +'.pos'*pos + '.txt' 
