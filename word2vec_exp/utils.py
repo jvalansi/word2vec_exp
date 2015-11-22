@@ -73,7 +73,7 @@ def join_files(fnames, target_fname):
             with open(fname) as f_:
                 f.write(f_.read()) 
 
-def to_text(fpath, pos=False, max_lines=None, pos_position=4, target_fpath=None):
+def to_text(fpath, pos=False, max_lines=None, word_position=1, pos_position=4, target_fpath=None):
     with open(fpath) as fp:
         data = fp.readlines(max_lines) if max_lines else fp.readlines() 
     sentences = []
@@ -84,11 +84,11 @@ def to_text(fpath, pos=False, max_lines=None, pos_position=4, target_fpath=None)
             print(str(percentage) + '\r'),
             percentage += 1
         line_split = line.split() 
-        if (pos and len(line_split) < pos_position+1) or (not pos and len(line_split) < 2):
+        if (pos and len(line_split) < pos_position+1) or (not pos and len(line_split) < word_position+1):
             sentences.append(sentence)
             sentence = []
         else:
-            word = line_split[1]
+            word = line_split[word_position]
             if pos:
                 word += '_'+line_split[pos_position] 
             sentence.append(word)
@@ -145,7 +145,7 @@ def build_corpus(path, pos, target_fpath):
         fpath = os.path.join(path, fname)
         if fname.endswith('.txt') or not os.path.isfile(fpath):
             continue
-        fpaths.append(to_text(fpath, pos, pos_position=2))
+        fpaths.append(to_text(fpath, pos, word_position=0, pos_position=2))
 #     join files
     join_files(fpaths, target_fpath)
     file_to_lower(target_fpath)
