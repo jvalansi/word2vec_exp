@@ -81,7 +81,7 @@ def to_text(fpath, pos=False, max_lines=None):
     percentage = 0
     for i,line in enumerate(data):
         if 100*i/len(data) > percentage:
-            print(percentage + '\r')
+            print(str(percentage) + '\r')
             percentage += 1
         if len(line.split()) < 2+3*pos:
             sentences.append(sentence)
