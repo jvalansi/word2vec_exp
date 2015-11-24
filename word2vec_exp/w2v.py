@@ -167,6 +167,7 @@ def main():
 #     print(w2v.model.similarity('add_VB','remove_VB'))
 #     print(len(model.vocab.keys()))    
 
+    w2v.logger.setLevel(logging.DEBUG)
     questions_fpath = os.path.join('res', 'mult', args.questions_name)
     print(datetime.datetime.now())
     eval1 = w2v.evaluate_model(questions_fpath)
