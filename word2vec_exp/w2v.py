@@ -59,7 +59,6 @@ class W2V:
 #             with open(target_fpath) as fp:
 #                 sentences = fp.readlines()
             model.build_vocab(sentences)
-            print(model.vocab.items())
             model.train(sentences)        
         else:
             fpath = os.path.join('res', 'model', name+'.txt')
