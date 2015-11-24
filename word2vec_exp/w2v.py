@@ -45,6 +45,7 @@ class W2V:
                 build_news_corpus(name, max_news, n_proc, target_fpath)
             sentences = word2vec.LineSentence(target_fpath)
             model.build_vocab(sentences)
+            print(model.vocab.items())
             model.train(sentences)
 #         elif name.startswith('wikipedia.deps'):
 #             target_fpath = os.path.join('res', 'model', name+'.txt')
