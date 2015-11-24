@@ -45,7 +45,6 @@ class W2V:
                 build_news_corpus(name, max_news, n_proc, target_fpath)
             sentences = word2vec.LineSentence(target_fpath)
             model.build_vocab(sentences)
-            print(model.vocab.items())
             model.train(sentences)
 #         elif name.startswith('wikipedia.deps'):
 #             target_fpath = os.path.join('res', 'model', name+'.txt')
@@ -56,9 +55,11 @@ class W2V:
             if not os.path.exists(target_fpath):
                 path = os.path.join('res', 'model', 'spanishEtiquetado')
                 build_corpus(path, name.endswith('pos'), target_fpath)
-            with open(target_fpath) as fp:
-                sentences = fp.readlines()
+            sentences = word2vec.LineSentence(target_fpath)
+#             with open(target_fpath) as fp:
+#                 sentences = fp.readlines()
             model.build_vocab(sentences)
+            print(model.vocab.items())
             model.train(sentences)        
         else:
             fpath = os.path.join('res', 'model', name+'.txt')
