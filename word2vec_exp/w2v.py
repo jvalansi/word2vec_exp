@@ -7,7 +7,8 @@ from multiprocessing import Pool
 from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
 from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
-    multiply_file, to_section_name, remove_pos, build_news_corpus, build_corpus
+    multiply_file, to_section_name, remove_pos, build_news_corpus, build_corpus,\
+    file_to_lower
 import argparse
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem.snowball import SnowballStemmer
@@ -61,22 +62,21 @@ class W2V:
             model.build_vocab(sentences)
             model.train(sentences)        
         else:
-            fpath = os.path.join('res', 'model', name+'.txt')
-            with open(fpath) as fp:
-                sentences = fp.readlines()
-            sentences = [sentence.lower() for sentence in sentences]
+            target_fpath = os.path.join('res', 'model', name+'.txt')
+            file_to_lower(target_fpath)
+            sentences = word2vec.LineSentence(target_fpath)
             model.build_vocab(sentences)
-            n_sents = len(sentences)  
-            print(n_sents)
-            if splits == 0:
-                splits = 1
-            split_size = int(n_sents/splits)
-            for i in range(splits):
-                print(str(i) + '\r')
-                split_sentences = sentences[i*split_size:(i+1)*split_size-1]
-                model.train(split_sentences)
-                model.save_word2vec_format(os.path.join('res', 'model', fname), binary=fname.endswith('.bin'))
-                model.save()  
+            model.train(sentences)
+#             n_sents = len(sentences)  
+#             print(n_sents)
+#             if splits == 0:
+#                 splits = 1
+#             split_size = int(n_sents/splits)
+#             for i in range(splits):
+#                 print(str(i) + '\r')
+#                 split_sentences = sentences[i*split_size:(i+1)*split_size-1]
+#                 model.save_word2vec_format(os.path.join('res', 'model', fname), binary=fname.endswith('.bin'))
+#                 model.save()  
                          
     #     model.save(os.path.join('res',name+'.model'))
         model.save_word2vec_format(os.path.join('res', 'model', fname), binary=fname.endswith('.bin'))
