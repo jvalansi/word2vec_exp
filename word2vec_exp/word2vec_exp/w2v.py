@@ -6,7 +6,7 @@ import os
 from multiprocessing import Pool
 from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
-from word2vec_exp.utils import clean_name, pos_file, join_files, encode_heb, to_text,\
+from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
     multiply_file, to_section_name, remove_pos, build_news_corpus, build_corpus,\
     file_to_lower
 import argparse
