@@ -73,7 +73,7 @@ def join_files(fnames, target_fname):
             with open(fname) as f_:
                 f.write(f_.read()) 
 
-def to_text(fpath, pos=False, max_lines=None, word_position=1, pos_position=4, target_fpath=None):
+def to_text(fpath, pos=False, max_lines=None, word_position=1, pos_position=4, target_fpath=None, max_pos_len=None):
     with open(fpath) as fp:
         data = fp.readlines(max_lines) if max_lines else fp.readlines() 
     sentences = []
@@ -90,7 +90,7 @@ def to_text(fpath, pos=False, max_lines=None, word_position=1, pos_position=4, t
         else:
             word = line_split[word_position]
             if pos:
-                word += '_'+line_split[pos_position] 
+                word += '_'+line_split[pos_position][:max_pos_len] 
             sentence.append(word)
     if target_fpath:
         fpath_text = target_fpath +'.pos'*pos + '.txt' 
@@ -138,14 +138,14 @@ def file_to_lower(fpath):
     with open(fpath, 'w') as fp:
         fp.write(s)
 
-def build_corpus(path, pos, target_fpath):
+def build_corpus(path, pos, target_fpath, max_pos_len=None):
 #     all files to text
     fpaths = []
     for fname in os.listdir(path):
         fpath = os.path.join(path, fname)
         if fname.endswith('.txt') or not os.path.isfile(fpath):
             continue
-        fpaths.append(to_text(fpath, pos, word_position=0, pos_position=2))
+        fpaths.append(to_text(fpath, pos, word_position=0, pos_position=2, max_pos_len=max_pos_len))
 #     join files
     join_files(fpaths, target_fpath)
     file_to_lower(target_fpath)
@@ -161,6 +161,7 @@ def main():
     parser.add_argument("-pos", "--part_of_speech", help="part of speech list", nargs='+', default=None)
     parser.add_argument("-tt", "--to_text", help="to text", default=None)
     parser.add_argument("-ml", "--max_lines", help="maximal number of lines", type=int, default=None)
+    parser.add_argument("-ml", "--max_pos_len", help="maximal part of speech length", type=int, default=None)
     args = parser.parse_args()
 
 #     fname = 'ambiguous_verbs_mixed'

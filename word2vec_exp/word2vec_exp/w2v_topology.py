@@ -7,7 +7,7 @@ from collections import Counter
 import matplotlib.pyplot as plt
 import pylab
 from math import acos
-import logger
+from word2vec_exp import logger
 
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
@@ -77,14 +77,14 @@ if __name__ == '__main__':
         len_list.append(len(word_list))
         attractors.append(word_tuple[0]) 
         attractors.append(prev_word_tuple[0])
-    logger.logging.info(len_list)
-    logger.logging.info(average(len_list))
-    logger.logging.info(histogram(len_list))
+    w2v.logger.logging.info(len_list)
+    w2v.logger.logging.info(average(len_list))
+    w2v.logger.logging.info(histogram(len_list))
     hist, bins = histogram(len_list)
     center = (bins[:-1] + bins[1:]) / 2
     plt.bar(center, hist, align='center')
     plt.draw()
-    logger.logging.info(Counter(attractors))
+    w2v.logger.logging.info(Counter(attractors))
     plot_lists(hop_list, 6)
     plot_lists(dist_lists, 6)
     

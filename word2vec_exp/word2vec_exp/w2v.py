@@ -6,7 +6,7 @@ import os
 from multiprocessing import Pool
 from six import iteritems, itervalues
 from numpy.core.fromnumeric import argsort
-from utils import clean_name, pos_file, join_files, encode_heb, to_text,\
+from word2vec_exp.utils import clean_name, pos_file, join_files, encode_heb, to_text,\
     multiply_file, to_section_name, remove_pos, build_news_corpus, build_corpus,\
     file_to_lower
 import argparse
@@ -54,8 +54,11 @@ class W2V:
         elif name.startswith('spanishEtiquetado'):
             target_fpath = os.path.join('res', 'model', name+'.txt')
             if not os.path.exists(target_fpath):
-                path = os.path.join('res', 'model', 'spanishEtiquetado')
-                build_corpus(path, name.endswith('pos'), target_fpath)
+                path = os.path.join('res', 'model', name)
+                max_pos_len = re.search('\d$', name)
+                if max_pos_len:
+                    max_pos_len = max_pos_len.group(0)
+                build_corpus(path, name.endswith('pos'), target_fpath, max_pos_len)
             sentences = word2vec.LineSentence(target_fpath)
 #             with open(target_fpath) as fp:
 #                 sentences = fp.readlines()
@@ -103,7 +106,7 @@ class W2V:
         return predicted
 
     def evaluate_model(self, 
-                       questions_fpath=os.path.join('res', 
+                       questions_fpath=os.path.join('res', 'model',
                                                     'questions-words.txt')):
         if clean_name(self.fname).endswith('pos'):
             pos_file(questions_fpath)
@@ -152,19 +155,20 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-mn", "--model_name", help="model name", default='spanishEtiquetado.bin')
-    parser.add_argument("-qn", "--questions_name", help="questions name", default='ambiguous_verbs.es')
+    parser.add_argument("-qn", "--questions_name", help="questions name", default='ambiguous_verbs.sp')
     parser.add_argument("-w", "--window", help="model window size", type=int, default=5)
     parser.add_argument("-n", "--n_proc", help="number of processes", type=int, default=4)
     args = parser.parse_args()
-
+    
+    word2vec.logger.setLevel(logging.DEBUG)
     
     w2v = W2V(args.model_name,n_proc=args.n_proc, window=args.window)
     pos_name = clean_name(args.model_name) +'.pos' + '.bin'
     w2v_pos = W2V(pos_name,n_proc=args.n_proc, window=args.window)
 
-#     print(len(w2v.model.vocab))
-#     print(w2v.model.vocab.items()[:10])
-#     print(w2v.model.similarity('add_VB','remove_VB'))
+#     print(len(word2vec_exp.model.vocab))
+#     print(word2vec_exp.model.vocab.items()[:10])
+#     print(word2vec_exp.model.similarity('add_VB','remove_VB'))
 #     print(len(model.vocab.keys()))    
 
     questions_fpath = os.path.join('res', 'mult', args.questions_name)
@@ -174,7 +178,7 @@ def main():
     eval2 = w2v_pos.evaluate_model(questions_fpath)
     print(datetime.datetime.now())
     missing1, missing2 = compare_section(eval1, eval2, to_section_name(args.questions_name))
-    
-    
+
+
 if __name__ == '__main__':
     main()
