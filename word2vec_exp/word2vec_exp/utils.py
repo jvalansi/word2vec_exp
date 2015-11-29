@@ -37,7 +37,7 @@ def multiply_file(fname):
     with open(new_fname, 'w') as fn:
         fn.writelines(new_lines)
 
-def pos_file(fname, out_fname=None, overwrite=False, pos=None):
+def pos_file(fname, out_fname=None, overwrite=False, pos=None, max_pos_len=None):
     if not out_fname:
         out_fname = fname+'.pos' 
     if os.path.exists(out_fname) and not overwrite:
@@ -53,10 +53,10 @@ def pos_file(fname, out_fname=None, overwrite=False, pos=None):
                 print(datetime.datetime.now())
                 print(tok_lines.index(tok_line))
             if pos:
-                new_lines.append(' '.join(['_'.join([w,p]) for w,p in zip(tok_line, pos)]) + '\n')
+                new_lines.append(' '.join(['_'.join([w,p[:max_pos_len]]) for w,p in zip(tok_line, pos)]) + '\n')
             else:
                 pos_line = nltk.pos_tag(tok_line)
-                new_lines.append(' '.join(['_'.join([w,p]) for w,p in pos_line]) + '\n')
+                new_lines.append(' '.join(['_'.join([w,p[:max_pos_len]]) for w,p in pos_line]) + '\n')
     with open(out_fname,'w') as f:
         f.writelines([line.encode('utf-8') for line in new_lines])
 

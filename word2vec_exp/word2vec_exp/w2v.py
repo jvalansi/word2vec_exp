@@ -55,7 +55,7 @@ class W2V:
             target_fpath = os.path.join('res', 'model', name+'.txt')
             if not os.path.exists(target_fpath):
                 path = os.path.join('res', 'model', 'spanishEtiquetado')
-                max_pos_len = re.search('\d$', name)
+                max_pos_len = re.search('\d+', name)
                 if max_pos_len:
                     max_pos_len = max_pos_len.group(0)
                 build_corpus(path, name.endswith('pos'), target_fpath, max_pos_len)
