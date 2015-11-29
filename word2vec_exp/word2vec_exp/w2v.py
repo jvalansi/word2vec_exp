@@ -57,7 +57,7 @@ class W2V:
                 path = os.path.join('res', 'model', 'spanishEtiquetado')
                 max_pos_len = re.search('\d+', name)
                 if max_pos_len:
-                    max_pos_len = max_pos_len.group(0)
+                    max_pos_len = int(max_pos_len.group(0))
                 build_corpus(path, name.endswith('pos'), target_fpath, max_pos_len)
             sentences = word2vec.LineSentence(target_fpath)
 #             with open(target_fpath) as fp:
